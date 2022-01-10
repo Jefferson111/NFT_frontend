@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import './App.css';
 import contract from './contracts/apocalypse.json';
 import { ethers } from 'ethers';
+import BasicGrid from './components/BasicGrid.js';
 
 const contractAddress = "0xb97F583eB62B69246fA9382cEAB2Fd97dA6C8536";
 const abi = contract.abi;
@@ -105,7 +106,7 @@ function App() {
       setCurrentMints(currentMints_.toNumber());
       setCurrentNfts(currentNfts_.toNumber());
       const myDate = new Date(expiryTime_.toNumber() * 1000);
-      setExpiryTime(myDate.toGMTString() + " " + myDate.toLocaleString());
+      setExpiryTime(myDate.toLocaleString());
     }
   }
 
@@ -116,13 +117,7 @@ function App() {
 
   return (
     <div className='main-app'>
-      <h1>Apocalypse</h1>
-      <div>
-        {currentAccount ? mintNftButton() : connectWalletButton()}
-      </div>
-      <div>Current mints: {currentMints}/100,000</div>
-      <div>Current circulating supply: {currentNfts}</div>
-      <div>Game end: {expiryTime}</div>
+      {BasicGrid(currentAccount, mintNftButton, connectWalletButton, expiryTime, currentMints, currentNfts)}
     </div>
   )
 }
