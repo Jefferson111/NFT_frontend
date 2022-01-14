@@ -50,7 +50,7 @@ export default function BasicGrid(currentAccount, mintNftButton, connectWalletBu
             </Item>
         </Grid>
         <Grid item xs={12}>
-            {/*
+            
             <Item>
                 <h4>Number of Mints</h4>
                 <h2>{currentMints}</h2>
@@ -65,7 +65,7 @@ export default function BasicGrid(currentAccount, mintNftButton, connectWalletBu
                 <h4>Estimated APY (based on past hour minting rate)</h4>
                 <h2>7,390,141,198,352,689%</h2>
             </Item>
-            */}
+            {/*
             <TableContainer>
                 <Table>
                     <TableBody>
@@ -96,6 +96,7 @@ export default function BasicGrid(currentAccount, mintNftButton, connectWalletBu
                     </TableBody>
                 </Table>
             </TableContainer>
+            */}
         </Grid>
         <Grid item xs={12}>
             <Item>
