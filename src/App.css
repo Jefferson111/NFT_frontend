@@ -7,9 +7,7 @@
   padding: 15px;
   border: none;
   border-radius: 12px;
-  min-width: 250px;
   color: white;
-  font-size: 18px;
   cursor: pointer;
 }
 
@@ -19,4 +17,11 @@
 
 .mint-nft-button {
   background: orange;
+}
+
+@font-face {
+  font-family: 'MyFont';
+  src: local('MyFont'), url(./fonts/MoonDance-Regular.ttf) format('woff');
+  /* other formats include: 'woff2', 'truetype, 'opentype',
+                            'embedded-opentype', and 'svg' */
 }

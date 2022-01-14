@@ -85,7 +85,7 @@ function App() {
 
   const mintNftButton = () => {
     return (
-      <button onClick={mintNftHandler} className='cta-button mint-nft-button'>
+      <button onClick={mintNftHandler} className='cta-button mint-nft-button' style={{fontFamily: 'MyFont', fontSize: 20}}>
         Mint NFT
       </button>
     )
@@ -106,7 +106,8 @@ function App() {
       setCurrentMints(currentMints_.toNumber());
       setCurrentNfts(currentNfts_.toNumber());
       const myDate = new Date(expiryTime_.toNumber() * 1000);
-      setExpiryTime(myDate.toLocaleString());
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' };
+      setExpiryTime(myDate.toLocaleString("en-US", options));
     }
   }
 
