@@ -3,11 +3,6 @@ import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
-import Table from "@mui/material/Table";
-import TableBody from "@mui/material/TableBody";
-import TableCell from "@mui/material/TableCell";
-import TableContainer from "@mui/material/TableContainer";
-import TableRow from "@mui/material/TableRow";
 import mammonImage from "../images/mammon.jpg";
 import { ReactComponent as EtherSvg } from '../images/ethereum-eth-logo.svg';
 
@@ -20,7 +15,7 @@ const Item = styled(Paper)(({ theme }) => ({
     fontSize: 20
 }));
 
-export default function BasicGrid(currentAccount, mintNftButton, connectWalletButton, expiryTime, currentMints, currentNfts) {
+export default function BasicGrid(userAccount, mintNftButton, connectWalletButton, expiryTime, totalMints, userNfts, ethEarned, ethUnearned, jackpot, totalSupply) {
     return (
         <Box sx={{ flexGrow: 1 }}>
         <Grid container spacing={2}>
@@ -28,8 +23,8 @@ export default function BasicGrid(currentAccount, mintNftButton, connectWalletBu
             <Item style={{ height: '90%' }}>
                 <h1>Welcome to The Mammon Game</h1>
                 <div>The Mammon Game is a blockchain NFT game that brings stable & transparent income to all players.</div>
-                <h4>Jackpot</h4>
-                <h1>4,039,112 <EtherSvg height={24} width={24}/> which is equals to $1,206,857,946 USD</h1>
+                <h4>Jackpot == Revenuepot</h4>
+                <h1>{jackpot} <EtherSvg height={24} width={24}/> which is equals to ${jackpot * 4000} USD</h1>
             </Item>
         </Grid>
         <Grid item xs={3}>
@@ -40,7 +35,7 @@ export default function BasicGrid(currentAccount, mintNftButton, connectWalletBu
         <Grid item xs={4}>
             <Item style={{ height: '80%' }}>
                 <h4>Cost: 0.05 <EtherSvg height={12} width={12}/> </h4>
-                {currentAccount ? mintNftButton() : connectWalletButton()}
+                {userAccount ? mintNftButton() : connectWalletButton()}
             </Item>
         </Grid>
         <Grid item xs={8}>
@@ -52,51 +47,19 @@ export default function BasicGrid(currentAccount, mintNftButton, connectWalletBu
         <Grid item xs={12}>
             
             <Item>
-                <h4>Number of Mints</h4>
-                <h2>{currentMints}</h2>
+                <h4>Global Mints</h4>
+                <h2>{totalMints}</h2>
                 <h4>Current Circulating NFTs</h4>
-                <h2>{currentNfts}</h2>
+                <h2>{totalSupply}</h2>
                 <h4>Your Total Mints</h4>
-                <h2>7 / {currentMints}</h2>
-                <h4>Your Total NFTs (excludes burned NFTs)</h4>
-                <h2>5 / {currentNfts}</h2>
-                <h4>Your Net Value of Total NFTs (excludes burned NFTs)</h4>
-                <h2>76.21 <EtherSvg height={20} width={20}/> OR $316,721</h2>
+                <h2>{userNfts} / {totalMints}</h2>
+                <h4>Your profits from burning NFTs</h4>
+                <h2>{ethEarned}  <EtherSvg height={20} width={20}/> OR ${ethEarned * 4000}</h2>
+                <h4>Your uncollected profits from current NFTs</h4>
+                <h2>{ethUnearned} <EtherSvg height={20} width={20}/> OR ${ethUnearned * 4000}</h2>
                 <h4>Estimated APY (based on past hour minting rate)</h4>
                 <h2>7,390,141,198,352,689%</h2>
             </Item>
-            {/*
-            <TableContainer>
-                <Table>
-                    <TableBody>
-                    <TableRow>
-                        <TableCell>Number of Mints</TableCell>
-                        <TableCell>{currentMints}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                        <TableCell>Current Circulating NFTs</TableCell>
-                        <TableCell>{currentNfts}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                        <TableCell>Your Total Mints</TableCell>
-                        <TableCell>7 / {currentMints}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                        <TableCell>Your Total NFTs (excludes burned NFTs)</TableCell>
-                        <TableCell>5 / {currentNfts}</TableCell>
-                    </TableRow>
-                    <TableRow>
-                        <TableCell>Your Net Value of Total NFTs (excludes burned NFTs)</TableCell>
-                        <TableCell>76.21 <EtherSvg height={12} width={12}/> OR $316,721</TableCell>
-                    </TableRow>
-                    <TableRow>
-                        <TableCell>Estimated APY (based on past hour minting rate)</TableCell>
-                        <TableCell>7,390,141,198,352,689%</TableCell>
-                    </TableRow>
-                    </TableBody>
-                </Table>
-            </TableContainer>
-            */}
         </Grid>
         <Grid item xs={12}>
             <Item>

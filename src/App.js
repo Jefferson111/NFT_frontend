@@ -4,14 +4,18 @@ import contract from './contracts/apocalypse.json';
 import { ethers } from 'ethers';
 import BasicGrid from './components/BasicGrid.js';
 
-const contractAddress = "0xb97F583eB62B69246fA9382cEAB2Fd97dA6C8536";
+const contractAddress = "0x7fD26CEE3bbB21dDF7140c74cA7A0aa07bEd9484";
 const abi = contract.abi;
 
 function App() {
-  const [currentAccount, setCurrentAccount] = useState(null);
-  const [currentMints, setCurrentMints] = useState(0);
-  const [currentNfts, setCurrentNfts] = useState(0);
+  const [userAccount, setUserAccount] = useState(null);
+  const [totalMints, setTotalMints] = useState(0);
+  const [userNfts, setUserNfts] = useState(0);
+  const [ethEarned, setEthEarned] = useState(0);
+  const [ethUnearned, setEthUnearned] = useState(0);
+  const [jackpot, setJackpot] = useState(0);
   const [expiryTime, setExpiryTime] = useState('Game has yet to start');
+  const [totalSupply, setTotalSupply] = useState(0);
 
   const checkWalletIsConnected = async () => {
     const { ethereum } = window;
@@ -28,7 +32,7 @@ function App() {
     if (accounts.length !== 0) {
       const account = accounts[0];
       console.log("Found an authorized account: ", account);
-      setCurrentAccount(account);
+      setUserAccount(account);
     } else {
       console.log("No authorized account found");
     }
@@ -44,7 +48,7 @@ function App() {
     try {
       const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
       console.log("Found an account! Address: ", accounts[0]);
-      setCurrentAccount(accounts[0]);
+      setUserAccount(accounts[0]);
     } catch (err) {
       console.log(err)
     }
@@ -60,7 +64,7 @@ function App() {
         const apocalypseContract = new ethers.Contract(contractAddress, abi, signer);
 
         console.log("Initialize payment");
-        let nftTxn = await apocalypseContract.mint({ value: ethers.utils.parseEther("0.005") });
+        let nftTxn = await apocalypseContract.mint(1, { value: ethers.utils.parseEther("0.05") });
 
         console.log("Minting... please wait");
         await nftTxn.wait();
@@ -69,7 +73,7 @@ function App() {
       } else {
         console.log("Ethereum object does not exist");
       }
-
+      await checkContractStatus();
     } catch (err) {
       console.log(err);
     }
@@ -99,12 +103,30 @@ function App() {
       const apocalypseContract = new ethers.Contract(contractAddress, abi, provider);
 
       console.log("Start reading stats");
-      const currentMints_ = await apocalypseContract.getCurrentTokenId();
-      const currentNfts_ = await apocalypseContract.totalSupply();
-      const expiryTime_ = await apocalypseContract.getExpiration();
+      const totalMints_ = await apocalypseContract.getCurrentTokenId();
+      const expiryTime_ = await apocalypseContract.getEndTimestamp();
+      const jackpot_ = await apocalypseContract.getJackPot();
+      const totalSupply_ = await apocalypseContract.totalSupply();
 
-      setCurrentMints(currentMints_.toNumber());
-      setCurrentNfts(currentNfts_.toNumber());
+      if (userAccount != null) {
+        const nfts = await apocalypseContract.getTokenIds(ethers.utils.getAddress(userAccount));
+        const userNfts_ = await apocalypseContract.balanceOf(ethers.utils.getAddress(userAccount));
+        const ethUnearned_ = await apocalypseContract.getTotalRevenueOf(ethers.utils.getAddress(userAccount));
+        const ethEarned_ = await apocalypseContract.getTotalClaimedOf(ethers.utils.getAddress(userAccount));
+
+        for (let i = 0; i < nfts.length; i++) {
+          const x = await apocalypseContract.getRevenue(nfts[i]._hex); // For further breakdown to display each NFT value
+          console.log(ethers.utils.formatEther(x.toBigInt()));
+        }
+
+        setEthEarned(ethers.utils.formatEther(ethEarned_.toBigInt()));
+        setEthUnearned(ethers.utils.formatEther(ethUnearned_.toBigInt()));
+        setUserNfts(userNfts_.toNumber());
+      }
+
+      setTotalSupply(totalSupply_.toNumber());
+      setJackpot(ethers.utils.formatEther(jackpot_.toBigInt()));
+      setTotalMints(totalMints_.toNumber());
       const myDate = new Date(expiryTime_.toNumber() * 1000);
       const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' };
       setExpiryTime(myDate.toLocaleString("en-US", options));
@@ -118,7 +140,7 @@ function App() {
 
   return (
     <div className='main-app'>
-      {BasicGrid(currentAccount, mintNftButton, connectWalletButton, expiryTime, currentMints, currentNfts)}
+      {BasicGrid(userAccount, mintNftButton, connectWalletButton, expiryTime, totalMints, userNfts, ethEarned, ethUnearned, jackpot, totalSupply)}
     </div>
   )
 }
