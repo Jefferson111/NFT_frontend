@@ -34,7 +34,7 @@ export default function BasicGrid(userAccount, mintNftButton, connectWalletButto
         </Grid>
         <Grid item xs={4}>
             <Item style={{ height: '80%' }}>
-                <h4>Cost: 0.05 <EtherSvg height={12} width={12}/> </h4>
+                <h4>Cost: 10 Wei <EtherSvg height={12} width={12}/> </h4>
                 {userAccount ? mintNftButton() : connectWalletButton()}
             </Item>
         </Grid>

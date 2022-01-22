@@ -33,6 +33,7 @@ function App() {
       const account = accounts[0];
       console.log("Found an authorized account: ", account);
       setUserAccount(account);
+      checkContractStatus();
     } else {
       console.log("No authorized account found");
     }
@@ -49,6 +50,7 @@ function App() {
       const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
       console.log("Found an account! Address: ", accounts[0]);
       setUserAccount(accounts[0]);
+      checkContractStatus();
     } catch (err) {
       console.log(err)
     }
