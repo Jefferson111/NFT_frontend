@@ -64,7 +64,7 @@ function App() {
         const apocalypseContract = new ethers.Contract(contractAddress, abi, signer);
 
         console.log("Initialize payment");
-        let nftTxn = await apocalypseContract.mint(1, { value: ethers.utils.parseEther("0.05") });
+        let nftTxn = await apocalypseContract.mint(1, { value: ethers.utils.parseEther("0.00000000000000001") });
 
         console.log("Minting... please wait");
         await nftTxn.wait();
