@@ -4,7 +4,7 @@ import contract from './contracts/apocalypse.json';
 import { ethers } from 'ethers';
 import BasicGrid from './components/BasicGrid.js';
 
-const contractAddress = "0x7fD26CEE3bbB21dDF7140c74cA7A0aa07bEd9484";
+const contractAddress = "0x707526E00A54A5Ce5f78409FAaAF386c218f50aa";
 const abi = contract.abi;
 
 function App() {
