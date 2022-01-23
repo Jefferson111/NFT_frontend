@@ -3,6 +3,9 @@ import { styled } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Paper from '@mui/material/Paper';
 import Grid from '@mui/material/Grid';
+import ButtonGroup from '@mui/material/ButtonGroup';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
 import mammonImage from "../images/mammon.jpg";
 import { ReactComponent as EtherSvg } from '../images/ethereum-eth-logo.svg';
 
@@ -15,7 +18,25 @@ const Item = styled(Paper)(({ theme }) => ({
     fontSize: 20
 }));
 
-export default function BasicGrid(userAccount, mintNftButton, connectWalletButton, expiryTime, totalMints, userNfts, ethEarned, ethUnearned, jackpot, totalSupply) {
+const connectWalletButton = (connectWalletHandler) => {
+    return (
+      <Button onClick={() => connectWalletHandler()}>
+        Connect Wallet
+      </Button>
+    )
+  }
+
+const mintNftButton = (mintNftHandler, mintAmount) => {
+    return (
+      <Button onClick={() => mintNftHandler(mintAmount)}>
+        Mint NFT
+      </Button>
+    )
+  }
+
+export default function BasicGrid(userAccount, expiryTime, totalMints, userNfts, ethEarned, ethUnearned, jackpot, totalSupply, burnNftHandler, connectWalletHandler, mintNftHandler) {
+    const [mintAmount, setMintAmount] = React.useState(1);
+
     return (
         <Box sx={{ flexGrow: 1 }}>
         <Grid container spacing={2}>
@@ -35,7 +56,8 @@ export default function BasicGrid(userAccount, mintNftButton, connectWalletButto
         <Grid item xs={4}>
             <Item style={{ height: '80%' }}>
                 <h4>Cost: 10 Wei <EtherSvg height={12} width={12}/> </h4>
-                {userAccount ? mintNftButton() : connectWalletButton()}
+                {userAccount ? mintNftButton(mintNftHandler, mintAmount) : connectWalletButton(connectWalletHandler)}
+                <TextField id="outlined-basic" label="Amount" variant="outlined" value={mintAmount} onChange={(event) => {setMintAmount(event.target.value)}}/>
             </Item>
         </Grid>
         <Grid item xs={8}>
@@ -45,14 +67,23 @@ export default function BasicGrid(userAccount, mintNftButton, connectWalletButto
             </Item>
         </Grid>
         <Grid item xs={12}>
-            
+            <Item>
+                <ButtonGroup variant="contained" orientation="vertical" aria-label="outlined primary button group">
+                    {userNfts.map(function(nft, i){
+                        console.log(nft);
+                        return <Button key={i} onClick={() => burnNftHandler(nft[1])}>Burn: [Value: {nft[0]} <EtherSvg height={12} width={12}/> #NFT: {nft[1]}]</Button>;
+                    })}
+                </ButtonGroup>
+            </Item>
+        </Grid>
+        <Grid item xs={12}>  
             <Item>
                 <h4>Global Mints</h4>
                 <h2>{totalMints}</h2>
                 <h4>Current Circulating NFTs</h4>
                 <h2>{totalSupply}</h2>
                 <h4>Your Total Mints</h4>
-                <h2>{userNfts} / {totalMints}</h2>
+                <h2>{userNfts.length} / {totalMints}</h2>
                 <h4>Your profits from burning NFTs</h4>
                 <h2>{ethEarned}  <EtherSvg height={20} width={20}/> OR ${ethEarned * 4000}</h2>
                 <h4>Your uncollected profits from current NFTs</h4>

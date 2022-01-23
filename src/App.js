@@ -10,7 +10,7 @@ const abi = contract.abi;
 function App() {
   const [userAccount, setUserAccount] = useState(null);
   const [totalMints, setTotalMints] = useState(0);
-  const [userNfts, setUserNfts] = useState(0);
+  const [userNfts, setUserNfts] = useState([]);
   const [ethEarned, setEthEarned] = useState(0);
   const [ethUnearned, setEthUnearned] = useState(0);
   const [jackpot, setJackpot] = useState(0);
@@ -33,7 +33,6 @@ function App() {
       const account = accounts[0];
       console.log("Found an authorized account: ", account);
       setUserAccount(account);
-      checkContractStatus();
     } else {
       console.log("No authorized account found");
     }
@@ -50,13 +49,12 @@ function App() {
       const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
       console.log("Found an account! Address: ", accounts[0]);
       setUserAccount(accounts[0]);
-      checkContractStatus();
     } catch (err) {
       console.log(err)
     }
   }
 
-  const mintNftHandler = async () => {
+  const mintNftHandler = async (mintAmount) => {
     try {
       const { ethereum } = window;
 
@@ -65,8 +63,8 @@ function App() {
         const signer = provider.getSigner();
         const apocalypseContract = new ethers.Contract(contractAddress, abi, signer);
 
-        console.log("Initialize payment");
-        let nftTxn = await apocalypseContract.mint(1, { value: ethers.utils.parseEther("0.00000000000000001") });
+        console.log("Initialize payment of NFTs, number of mints:", mintAmount);
+        let nftTxn = await apocalypseContract.mint(parseInt(mintAmount), { value: ethers.utils.parseEther("0.00000000000000001") });
 
         console.log("Minting... please wait");
         await nftTxn.wait();
@@ -75,26 +73,34 @@ function App() {
       } else {
         console.log("Ethereum object does not exist");
       }
-      await checkContractStatus();
     } catch (err) {
       console.log(err);
     }
   }
 
-  const connectWalletButton = () => {
-    return (
-      <button onClick={connectWalletHandler} className='cta-button connect-wallet-button'>
-        Connect Wallet
-      </button>
-    )
-  }
+  const burnNftHandler = async (index) => {
+    try {
+      const { ethereum } = window;
 
-  const mintNftButton = () => {
-    return (
-      <button onClick={mintNftHandler} className='cta-button mint-nft-button' style={{fontFamily: 'MyFont', fontSize: 20}}>
-        Mint NFT
-      </button>
-    )
+      if (ethereum) {
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+        const apocalypseContract = new ethers.Contract(contractAddress, abi, signer);
+
+        console.log("Initialize burning of: ", index);
+        let nftTxn = await apocalypseContract.burn(index);
+
+        console.log("Burning... please wait");
+        await nftTxn.wait();
+
+        console.log(`Burned, see transaction: https://rinkeby.etherscan.io/tx/${nftTxn.hash}`);
+      } else {
+        console.log("Ethereum object does not exist");
+      }
+    } catch (err) {
+      console.log(err);
+    }
+
   }
 
   const checkContractStatus = async () => {
@@ -110,28 +116,32 @@ function App() {
       const jackpot_ = await apocalypseContract.getJackPot();
       const totalSupply_ = await apocalypseContract.totalSupply();
 
-      if (userAccount != null) {
-        const nfts = await apocalypseContract.getTokenIds(ethers.utils.getAddress(userAccount));
-        const userNfts_ = await apocalypseContract.balanceOf(ethers.utils.getAddress(userAccount));
-        const ethUnearned_ = await apocalypseContract.getTotalRevenueOf(ethers.utils.getAddress(userAccount));
-        const ethEarned_ = await apocalypseContract.getTotalClaimedOf(ethers.utils.getAddress(userAccount));
-
-        for (let i = 0; i < nfts.length; i++) {
-          const x = await apocalypseContract.getRevenue(nfts[i]._hex); // For further breakdown to display each NFT value
-          console.log(ethers.utils.formatEther(x.toBigInt()));
-        }
-
-        setEthEarned(ethers.utils.formatEther(ethEarned_.toBigInt()));
-        setEthUnearned(ethers.utils.formatEther(ethUnearned_.toBigInt()));
-        setUserNfts(userNfts_.toNumber());
-      }
-
       setTotalSupply(totalSupply_.toNumber());
       setJackpot(ethers.utils.formatEther(jackpot_.toBigInt()));
       setTotalMints(totalMints_.toNumber());
       const myDate = new Date(expiryTime_.toNumber() * 1000);
       const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric', second: 'numeric' };
       setExpiryTime(myDate.toLocaleString("en-US", options));
+
+      let tempAccount = userAccount;
+      if (userAccount == null) {
+        const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+        setUserAccount(accounts[0]);
+        tempAccount = accounts[0];
+      }
+      const nfts = await apocalypseContract.getTokenIds(ethers.utils.getAddress(tempAccount));
+      const ethUnearned_ = await apocalypseContract.getTotalRevenueOf(ethers.utils.getAddress(tempAccount));
+      const ethEarned_ = await apocalypseContract.getTotalClaimedOf(ethers.utils.getAddress(tempAccount));
+      const userNfts_ = []
+
+      for (let i = 0; i < nfts.length; i++) {
+        const x = await apocalypseContract.getRevenue(nfts[i]._hex); // For further breakdown to display each NFT value
+        userNfts_.push([ethers.utils.formatEther(x.toBigInt()), nfts[i].toNumber()]);
+      }
+
+      setEthEarned(ethers.utils.formatEther(ethEarned_.toBigInt()));
+      setEthUnearned(ethers.utils.formatEther(ethUnearned_.toBigInt()));
+      setUserNfts(userNfts_);
     }
   }
 
@@ -142,7 +152,7 @@ function App() {
 
   return (
     <div className='main-app'>
-      {BasicGrid(userAccount, mintNftButton, connectWalletButton, expiryTime, totalMints, userNfts, ethEarned, ethUnearned, jackpot, totalSupply)}
+      {BasicGrid(userAccount, expiryTime, totalMints, userNfts, ethEarned, ethUnearned, jackpot, totalSupply, burnNftHandler, connectWalletHandler, mintNftHandler)}
     </div>
   )
 }
